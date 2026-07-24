@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aria - AI-Powered Productivity Suite. Voice notes, smart tasks, intelligent insights, and more.">
+  <meta name="theme-color" content="#6366f1">
+  <title>Aria — AI Productivity Suite</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- ─── Loading Screen ────────────────────────────────────────────────── -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-logo">
+        <i class="fas fa-bolt"></i>
+        <span>Aria</span>
+      </div>
+      <div class="loading-bar">
+        <div class="loading-fill"></div>
+      </div>
+      <p class="loading-text">Loading your workspace...</p>
+    </div>
+  </div>
+
+  <!-- ─── Toast Container ───────────────────────────────────────────────── -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ─── Modal Overlay ─────────────────────────────────────────────────── -->
+  <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal()">
+    <div class="modal-container" onclick="event.stopPropagation()">
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!--                         AUTH SCREEN                                -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div id="auth-screen" class="auth-screen">
+    <div class="auth-bg-pattern"></div>
+    <div class="auth-container">
+      <div class="auth-card" id="auth-card">
+        <!-- Logo -->
+        <div class="auth-logo">
+          <div class="auth-logo-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h1>Aria</h1>
+          <p class="auth-tagline">Your AI-powered productivity companion</p>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-form" class="auth-form">
+          <h2>Welcome back</h2>
+          <p class="auth-subtitle">Sign in to continue to your workspace</p>
+          <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label for="login-email"><i class="fas fa-envelope"></i> Email</label>
+              <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="login-password"><i class="fas fa-lock"></i> Password</label>
+              <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" minlength="6">
+              <button type="button" class="toggle-password" onclick="togglePassword('login-password', this)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+              <span class="btn-text">Sign In</span>
+              <span class="btn-loader hidden"><i class="fas fa-spinner fa-spin"></i></span>
+            </button>
+          </form>
+          <p class="auth-switch">Don't have an account? <a href="#" onclick="showRegister()">Create one</a></p>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-form" class="auth-form hidden">
+          <h2>Create your account</h2>
+          <p class="auth-subtitle">Start your productivity journey with Aria</p>
+          <form onsubmit="handleRegister(event)">
+            <div class="form-group">
+              <label for="reg-username"><i class="fas fa-user"></i> Username</label>
+              <input type="text" id="reg-username" placeholder="cooluser123" required autocomplete="username" pattern="[a-zA-Z0-9_-]{3,30}">
+            </div>
+            <div class="form-group">
+              <label for="reg-email"><i class="fas fa-envelope"></i> Email</label>
+              <input type="email" id="reg-email" placeholder="you@example.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="reg-password"><i class="fas fa-lock"></i> Password</label>
+              <input type="password" id="reg-password" placeholder="At least 6 characters" required autocomplete="new-password" minlength="6">
+              <button type="button" class="toggle-password" onclick="togglePassword('reg-password', this)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" id="register-btn">
+              <span class="btn-text">Create Account</span>
+              <span class="btn-loader hidden"><i class="fas fa-spinner fa-spin"></i></span>
+            </button>
+          </form>
+          <p class="auth-switch">Already have an account? <a href="#" onclick="showLogin()">Sign in</a></p>
+        </div>
+
+        <!-- Demo credentials hint -->
+        <div class="auth-demo">
+          <i class="fas fa-flask"></i>
+          <span>Register a new account or use any email to get started!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!--                         MAIN APP                                   -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div id="app-screen" class="app-screen hidden">
+    <!-- ─── Sidebar ───────────────────────────────────────────────────── -->
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-bolt"></i>
+          <span>Aria</span>
+        </div>
+        <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-user" onclick="showProfile()">
+        <div class="sidebar-avatar" id="sidebar-avatar">A</div>
+        <div class="sidebar-user-info">
+          <span class="sidebar-username" id="sidebar-username">User</span>
+          <span class="sidebar-email" id="sidebar-email">user@example.com</span>
+        </div>
+      </div>
+
+      <!-- Main Navigation -->
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <a href="#" class="nav-item active" data-view="dashboard" onclick="navigateTo('dashboard')">
+          <i class="fas fa-th-large"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-view="notes" onclick="navigateTo('notes')">
+          <i class="fas fa-sticky-note"></i>
+          <span>Notes</span>
+          <span class="nav-badge" id="notes-count-badge">0</span>
+        </a>
+        <a href="#" class="nav-item" data-view="tasks" onclick="navigateTo('tasks')">
+          <i class="fas fa-tasks"></i>
+          <span>Tasks</span>
+          <span class="nav-badge" id="tasks-count-badge">0</span>
+        </a>
+        <a href="#" class="nav-item" data-view="voice" onclick="navigateTo('voice')">
+          <i class="fas fa-microphone"></i>
+          <span>Voice Notes</span>
+        </a>
+
+        <div class="nav-section-label">Insights</div>
+        <a href="#" class="nav-item" data-view="mood" onclick="navigateTo('mood')">
+          <i class="fas fa-smile"></i>
+          <span>Mood Tracker</span>
+        </a>
+        <a href="#" class="nav-item" data-view="focus" onclick="navigateTo('focus')">
+          <i class="fas fa-clock"></i>
+          <span>Focus Timer</span>
+        </a>
+        <a href="#" class="nav-item" data-view="insights" onclick="navigateTo('insights')">
+          <i class="fas fa-lightbulb"></i>
+          <span>Smart Insights</span>
+        </a>
+
+        <div class="nav-section-label">Workspace</div>
+        <a href="#" class="nav-item" data-view="calendar" onclick="navigateTo('calendar')">
+          <i class="fas fa-calendar"></i>
+          <span>Calendar</span>
+        </a>
+        <a href="#" class="nav-item" data-view="settings" onclick="navigateTo('settings')">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="nav-item" onclick="toggleDarkMode()" title="Toggle dark mode">
+          <i class="fas fa-moon" id="theme-icon"></i>
+          <span>Theme</span>
+        </button>
+        <button class="nav-item" onclick="handleLogout()" title="Sign out">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- ─── Main Content Area ─────────────────────────────────────────── -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="top-bar-left">
+          <button class="sidebar-toggle-mobile" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h2 id="page-title">Dashboard</h2>
+        </div>
+        <div class="top-bar-right">
+          <div class="search-bar" id="global-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search notes, tasks..." id="search-input"
+                   oninput="handleGlobalSearch(this.value)" onfocus="expandSearch()" onblur="collapseSearch()">
+          </div>
+          <button class="top-btn" onclick="showQuickNote()" title="Quick note (Ctrl+N)">
+            <i class="fas fa-pen"></i>
+          </button>
+          <button class="top-btn" onclick="showQuickTask()" title="Quick task (Ctrl+T)">
+            <i class="fas fa-plus"></i>
+          </button>
+          <button class="top-btn" onclick="navigateTo('focus')" title="Focus timer">
+            <i class="fas fa-clock"></i>
+          </button>
+          <div class="user-status" id="user-status">
+            <span class="status-dot online"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dynamic Page Content -->
+      <div class="page-content" id="page-content">
+        <!-- Content is rendered dynamically by app.js -->
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!--                         SCRIPTS                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <script src="js/app.js"></script>
+</body>
+</html>
